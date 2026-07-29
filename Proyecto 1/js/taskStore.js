@@ -1,36 +1,47 @@
-export function getTasks() {
+// taskStore.js
+// Capa de datos. Antes usaba localStorage; ahora las tareas viven en Firestore,
+// dentro de la subcolección users/{uid}/tasks, así cada usuario solo ve las suyas
+// y puede acceder a ellas desde cualquier dispositivo.
 
-    const raw = localStorage.getItem(STORAGE_KEY);
+import { db } from "./firebase-config.js";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
-    return raw ? JSON.parse(raw) : [];
+function tasksRef(uid) {
+  return collection(db, "users", uid, "tasks");
 }
 
-function saveTasks(tasks) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+export async function getTasks(uid) {
+  const q = query(tasksRef(uid), orderBy("createdAt", "asc"));
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }));
 }
 
-export function addTask(task) {
-    const tasks = getTasks();
-
-    const newTask = {
-        id: Date.now().toString(),
-        text,
-        completed: false
-    };
-
-    tasks.push(newTask);
-    saveTasks(tasks);
-    return tasks;
+export async function addTask(uid, text) {
+  await addDoc(tasksRef(uid), {
+    text,
+    completed: false,
+    createdAt: Date.now()
+  });
+  return getTasks(uid);
 }
-export function toggleTask(id) {
-    const tasks = getTasks().map(task =>
-    task.id === id ? { ...task, completed: !task.completed } : task
-  );
-  saveTasks(tasks);
-  return tasks;
+
+export async function toggleTask(uid, id, currentValue) {
+  const taskDoc = doc(db, "users", uid, "tasks", id);
+  await updateDoc(taskDoc, { completed: !currentValue });
+  return getTasks(uid);
 }
-export function deleteTask(id) {
-    const tasks = getTasks().filter(task => task.id !== id);
-    saveTasks(tasks);
-    return tasks;
+
+export async function deleteTask(uid, id) {
+  const taskDoc = doc(db, "users", uid, "tasks", id);
+  await deleteDoc(taskDoc);
+  return getTasks(uid);
 }

@@ -1,6 +1,4 @@
-﻿PWA Progressive Web App (PWA) is a type of application software delivered through the web, built using common web technologies including HTML, CSS, and JavaScript. It is intended to work on any platform that uses a standards-compliant browser, including both desktop and mobile devices. PWAs are designed to provide a more app-like experience for users, with features such as offline access, push notifications, and fast loading times.
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -16,20 +14,45 @@
       <p class="subtitle">A tiny modular task tracker</p>
     </header>
 
-    <form id="taskForm" class="task-form">
-      <input
-        type="text"
-        id="taskInput"
-        placeholder="What do you need to do?"
-        autocomplete="off"
-        required
-      >
-      <button type="submit">Add</button>
-    </form>
+    <!-- ===== Sección de autenticación ===== -->
+    <section id="authSection" class="auth-section">
+      <div class="auth-tabs">
+        <p>Inicia sesión o crea una cuenta para guardar tus tareas.</p>
+      </div>
 
-    <ul id="taskList" class="task-list"></ul>
+      <div class="auth-form">
+        <input type="email" id="authEmail" placeholder="Correo" autocomplete="email">
+        <input type="password" id="authPassword" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="current-password">
+        <div class="auth-buttons">
+          <button type="button" id="loginBtn">Iniciar sesión</button>
+          <button type="button" id="registerBtn" class="secondary">Crear cuenta</button>
+        </div>
+        <p id="authError" class="auth-error"></p>
+      </div>
+    </section>
 
-    <p id="emptyState" class="empty-state">No tasks yet — add your first one above.</p>
+    <!-- ===== Sección de la app (solo visible logueado) ===== -->
+    <section id="appSection" class="app-section hidden">
+      <div class="user-bar">
+        <span id="userEmailLabel"></span>
+        <button type="button" id="logoutBtn" class="link-btn">Cerrar sesión</button>
+      </div>
+
+      <form id="taskForm" class="task-form">
+        <input
+          type="text"
+          id="taskInput"
+          placeholder="What do you need to do?"
+          autocomplete="off"
+          required
+        >
+        <button type="submit">Add</button>
+      </form>
+
+      <ul id="taskList" class="task-list"></ul>
+
+      <p id="emptyState" class="empty-state">No tasks yet — add your first one above.</p>
+    </section>
   </div>
 
   <!-- type="module" lets us use import/export between files -->

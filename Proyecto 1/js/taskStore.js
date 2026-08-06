@@ -1,36 +1,32 @@
-export function getTasks() {
+import { db, auth } from "./firebaseConfig.js";
 
-    const raw = localStorage.getItem(STORAGE_KEY);
-
-    return raw ? JSON.parse(raw) : [];
+function getUserTasksRef() {
+  const uid = auth.currentUser.uid;
+  return db.ref("tasks/" + uid);
 }
 
-function saveTasks(tasks) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+export function addTask(text) {
+  const newTaskRef = getUserTasksRef().push();
+  newTaskRef.set({
+    text: text,
+    completed: false
+  });
 }
 
-export function addTask(task) {
-    const tasks = getTasks();
-
-    const newTask = {
-        id: Date.now().toString(),
-        text,
-        completed: false
-    };
-
-    tasks.push(newTask);
-    saveTasks(tasks);
-    return tasks;
+export function listenToTasks(callback) {
+  getUserTasksRef().on("value", (snapshot) => {
+    const data = snapshot.val();
+    const tasks = data
+      ? Object.entries(data).map(([id, task]) => ({ id, ...task }))
+      : [];
+    callback(tasks);
+  });
 }
-export function toggleTask(id) {
-    const tasks = getTasks().map(task =>
-    task.id === id ? { ...task, completed: !task.completed } : task
-  );
-  saveTasks(tasks);
-  return tasks;
+
+export function toggleTask(id, currentState) {
+  getUserTasksRef().child(id).update({ completed: !currentState });
 }
+
 export function deleteTask(id) {
-    const tasks = getTasks().filter(task => task.id !== id);
-    saveTasks(tasks);
-    return tasks;
+  getUserTasksRef().child(id).remove();
 }

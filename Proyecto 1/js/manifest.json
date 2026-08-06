@@ -1,0 +1,17 @@
+{
+  "name": "Campus Tasks",
+  "short_name": "Tasks",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F5F6F3",
+  "theme_color": "#1C1B29",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

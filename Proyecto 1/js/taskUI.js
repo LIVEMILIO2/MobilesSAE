@@ -1,22 +1,18 @@
-// Este módulo se encarga de la interfaz de usuario (UI) de las tareas.
-// Su función principal es mostrar las tareas en la página web y permitir al usuario interactuar con ellas (agregar, eliminar, marcar como completadas, etc.).
-
 const taskList = document.getElementById('taskList');
 const emptyState = document.getElementById('emptyState');
 
-export function renderTasks(tasks) {
+export function renderTasks(tasks, handlers) {
     taskList.innerHTML = '';
-    emptyState.style.classList.toggle('hidden', tasks.length > 0);
+    emptyState.classList.toggle('hidden', tasks.length > 0);
 
     tasks.forEach(task => {
         const taskItem = document.createElement('li');
-        taskItem.className = 'task-item';
+        taskItem.className = 'task-item' + (task.completed ? ' completed' : '');
 
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.checked = task.completed;
-
-        checkbox.addEventListener('change', () => handlers.onTggle(task.id));
+        checkbox.addEventListener('change', () => handlers.onToggle(task.id));
 
         const span = document.createElement('span');
         span.className = 'task-text';
@@ -27,8 +23,8 @@ export function renderTasks(tasks) {
         deleteBtn.textContent = "Delete";
         deleteBtn.addEventListener("click", () => handlers.onDelete(task.id));
 
-        li.append(checkbox, span, deleteBtn);
-        taskList.appendChild(li);
+        taskItem.append(checkbox, span, deleteBtn);
+        taskList.appendChild(taskItem);
     });
 }
 

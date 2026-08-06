@@ -1,30 +1,59 @@
-// app.js — ENTRY POINT
-// Connects the data layer (taskStore.js) with the presentation layer (taskUI.js).
- 
-import { getTasks, addTask, toggleTask, deleteTask } from "./taskStore.js";
+import { auth, db } from "./firebaseConfig.js";
+import { addTask, listenToTasks, toggleTask, deleteTask } from "./taskStore.js";
 import { renderTasks, getFormInput } from "./taskUI.js";
- 
+
 const form = document.getElementById("taskForm");
- 
-// Re-renders the whole list every time something changes
+let currentTasks = [];
+
 function refresh(tasks) {
+  currentTasks = tasks;
   renderTasks(tasks, {
-    onToggle: (id) => refresh(toggleTask(id)),
-    onDelete: (id) => refresh(deleteTask(id))
+    onToggle: (id) => {
+      const task = currentTasks.find(t => t.id === id);
+      toggleTask(id, task.completed);
+    },
+    onDelete: (id) => deleteTask(id)
   });
 }
- 
+
+// Protege esta página, si no hay sesión activa regresa al login.
+// listenToTasks se llama aquí adentro, no afuera, porque necesita
+// esperar a que Firebase confirme quién es el usuario antes de
+// poder armar la ruta tasks/UID.
+auth.onAuthStateChanged((user) => {
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  db.ref("users/" + user.uid).on("value", (snapshot) => {
+    const profile = snapshot.val();
+    document.getElementById("userName").textContent = profile ? profile.displayName : user.email;
+  });
+
+  listenToTasks(refresh);
+});
+
 form.addEventListener("submit", (event) => {
-  event.preventDefault(); // stop the page from reloading on submit
- 
+  event.preventDefault();
+
   const input = getFormInput();
   const text = input.value.trim();
-  if (!text) return; // ignore empty submissions
- 
-  refresh(addTask(text));
+  if (!text) return;
+
+  addTask(text);
   input.value = "";
   input.focus();
 });
- 
-// Draw whatever was already saved when the page first loads
-refresh(getTasks());
+
+document.getElementById("logOutBtn").addEventListener("click", () => {
+  auth.signOut().then(() => {
+    window.location.href = "login.html";
+  });
+});
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js");
+  });
+}

@@ -67,3 +67,14 @@ body {
 .onboarding { text-align: center; }
 .onboarding input { width: 100%; padding: 12px 14px; border-radius: var(--radius); border: 1px solid var(--color-border); margin-bottom: 12px; font-size: 15px; }
 .onboarding button { background: var(--color-primary); color: white; border: none; padding: 12px 20px; border-radius: var(--radius); font-weight: 600; cursor: pointer; width: 100%; }
+
+.install-btn {
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
